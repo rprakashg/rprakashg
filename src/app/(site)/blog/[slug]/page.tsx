@@ -12,8 +12,33 @@ import { client } from "@/sanity/lib/client";
 import type { Post, PostSummary } from "@/sanity/types";
 import { formatDate } from "@/lib/utils";
 
+/** Sanity image asset IDs encode their original pixel dimensions, e.g. `image-<hash>-1200x800-png`. */
+function imageDimensions(ref: string): { width: number; height: number } {
+  const match = ref.match(/-(\d+)x(\d+)-/);
+  if (!match) return { width: 1200, height: 675 };
+  return { width: Number(match[1]), height: Number(match[2]) };
+}
+
 const portableTextComponents: PortableTextComponents = {
   types: {
+    image: ({
+      value,
+    }: {
+      value: { asset: { _ref: string }; alt?: string };
+    }) => {
+      const { width, height } = imageDimensions(value.asset._ref);
+      const displayWidth = 1200;
+      const displayHeight = Math.round((height / width) * displayWidth);
+      return (
+        <Image
+          src={urlForImage(value).width(displayWidth).url()}
+          alt={value.alt ?? ""}
+          width={displayWidth}
+          height={displayHeight}
+          className="my-6 h-auto w-full rounded-xl"
+        />
+      );
+    },
     code: ({ value }: { value: { code: string; language?: string } }) => (
       <pre className="overflow-x-auto rounded-lg bg-neutral-900 p-4 text-sm text-neutral-100">
         <code className={value.language ? `language-${value.language}` : undefined}>
@@ -105,7 +130,7 @@ export default async function PostPage({
   const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
 
   return (
-    <article className="mx-auto w-full px-4 pt-10 pb-16 sm:px-6 lg:w-3/5 lg:px-8">
+    <article className="mx-auto w-full max-w-7xl px-4 pt-10 pb-16 sm:px-6 lg:px-8">
       <div className="mb-6 flex items-center gap-x-3">
         <AuthorAvatar author={post.author} size={48} />
         <div>
@@ -173,10 +198,10 @@ export default async function PostPage({
 
       <div className="mt-10">
         <Link
-          href="/"
+          href="/posts"
           className="text-sm font-semibold text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
         >
-          &larr; Back to all posts
+          &larr; View all posts
         </Link>
       </div>
     </article>

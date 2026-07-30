@@ -9,7 +9,7 @@ export function SiteFooter({ contact }: { contact?: ProfileContact }) {
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
           <div>
             <span className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
-              Ram's Blog
+              Ram&apos;s Blog
             </span>
             <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
               Writing about my journey in the world of kubernetes, servicemesh and 

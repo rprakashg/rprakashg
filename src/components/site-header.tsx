@@ -20,11 +20,11 @@ export function SiteHeader({ contact }: { contact?: ProfileContact }) {
           href="/"
           className="text-lg font-bold tracking-tight text-neutral-900 dark:text-neutral-100"
         >
-          Ram's Blog
+          HOME
         </Link>
 
         <div className="hidden items-center gap-8 sm:flex">
-          <ul className="flex items-center gap-6 text-sm font-medium text-neutral-600 dark:text-neutral-300">
+          <ul className="flex items-center gap-6 text-sm font-bold text-neutral-600 dark:text-neutral-300">
             {navLinks.map((link) => (
               <li key={link.url}>
                 <Link
@@ -81,7 +81,7 @@ export function SiteHeader({ contact }: { contact?: ProfileContact }) {
 
       {open && (
         <div className="mt-2 rounded-[28px] border border-yellow-100/40 bg-yellow-50/60 px-4 py-4 backdrop-blur-md sm:hidden dark:border-neutral-700/40 dark:bg-neutral-800/80">
-          <ul className="flex flex-col gap-4 text-sm font-medium text-neutral-600 dark:text-neutral-300">
+          <ul className="flex flex-col gap-4 text-sm font-bold text-neutral-600 dark:text-neutral-300">
             {navLinks.map((link) => (
               <li key={link.url}>
                 <Link href={link.url} onClick={() => setOpen(false)}>
