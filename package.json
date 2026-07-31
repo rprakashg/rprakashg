@@ -25,6 +25,7 @@
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "sanity": "^6.7.0",
+    "styled-components": "^6.4.4",
     "unified": "^11.0.5"
   },
   "devDependencies": {
