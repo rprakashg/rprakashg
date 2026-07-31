@@ -1,0 +1,96 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+      - preview
+
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/preview'
+    environment: preview
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Install Vercel CLI
+        run: yarn global add vercel@latest
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Build
+        run: vercel build --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Deploy preview to Vercel
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }})
+          echo "url=$url" >> $GITHUB_OUTPUT
+
+      - name: Print preview URL
+        run: echo "Preview deployed to ${{ steps.deploy.outputs.url }}"
+  
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    environment: production
+
+    steps:
+      - name: Install Vercel CLI
+        run: yarn global add vercel@latest
+
+      - name: Find preview deployment URL with READY state from vercel
+        id: preview
+        run: | 
+          PREVIEW_URL=$(vercel ls learning --token=${{ env.VERCEL_TOKEN }} --environment=preview --format=json | jq -r '.deployments | map(select(.state == "READY")) | first | .url')
+          echo="url=${PREVIEW_URL}"
+
+      - name: Promote preview to production
+        if: steps.preview.outputs.url != ''
+        run: vercel promote ${{ steps.preview.outputs.url }} --token=${{ env.VERCEL_TOKEN }}
+
+      # Fallback: full build + production deploy when no preview deployment exists
+      - name: Checkout
+        if: steps.preview.outputs.url == ''
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: steps.preview.outputs.url == ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        if: steps.preview.outputs.url == ''
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        if: steps.preview.outputs.url == ''
+        run: yarn run build
+
+      - name: Pull Vercel environment
+        if: steps.preview.outputs.url == ''
+        run: vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+
+      - name: Deploy to production
+        if: steps.preview.outputs.url == ''
+        run: vercel deploy --prod --token=${{ env.VERCEL_TOKEN }}
