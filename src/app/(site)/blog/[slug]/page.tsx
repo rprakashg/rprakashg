@@ -27,15 +27,13 @@ const portableTextComponents: PortableTextComponents = {
       value: { asset: { _ref: string }; alt?: string };
     }) => {
       const { width, height } = imageDimensions(value.asset._ref);
-      const displayWidth = 1200;
-      const displayHeight = Math.round((height / width) * displayWidth);
       return (
         <Image
-          src={urlForImage(value).width(displayWidth).url()}
+          src={urlForImage(value).width(width).url()}
           alt={value.alt ?? ""}
-          width={displayWidth}
-          height={displayHeight}
-          className="my-6 h-auto w-full rounded-xl"
+          width={width}
+          height={height}
+          className="my-6 h-auto max-w-full rounded-xl"
         />
       );
     },
