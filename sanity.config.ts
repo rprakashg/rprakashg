@@ -13,7 +13,7 @@ import { structure } from './src/sanity/structure'
 export default defineConfig({
   basePath: studioBasePath,
   name: 'default',
-  title: 'Modern Blog Studio',
+  title: "Ram's Blog Studio",
   projectId,
   dataset,
   schema,

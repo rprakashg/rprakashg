@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { PostCard } from "@/components/post-card";
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/client";
 import { CATEGORIES_QUERY, POSTS_QUERY } from "@/sanity/lib/queries";
 import type { Category, PostSummary } from "@/sanity/types";
 
@@ -19,8 +19,8 @@ export default async function PostsPage({
   const { category: activeCategory } = await searchParams;
 
   const [postsData, categoriesData] = await Promise.all([
-    client.fetch(POSTS_QUERY),
-    client.fetch(CATEGORIES_QUERY),
+    sanityFetch({ query: POSTS_QUERY, tags: ["post"] }),
+    sanityFetch({ query: CATEGORIES_QUERY, tags: ["category"] }),
   ]);
   const posts = postsData as PostSummary[];
   const categories = categoriesData as Category[];

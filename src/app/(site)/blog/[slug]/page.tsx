@@ -8,7 +8,7 @@ import { AuthorAvatar } from "@/components/author-avatar";
 import { PostCard } from "@/components/post-card";
 import { urlForImage } from "@/sanity/lib/image";
 import { POST_QUERY, POST_SLUGS_QUERY, POSTS_QUERY } from "@/sanity/lib/queries";
-import { client } from "@/sanity/lib/client";
+import { client, sanityFetch } from "@/sanity/lib/client";
 import type { Post, PostSummary } from "@/sanity/types";
 import { formatDate } from "@/lib/utils";
 
@@ -101,7 +101,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const data = await client.fetch(POST_QUERY, { slug });
+  const data = await sanityFetch({ query: POST_QUERY, params: { slug }, tags: ["post"] });
   const post = data as Post | null;
 
   if (!post) return {};
@@ -118,12 +118,12 @@ export default async function PostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const data = await client.fetch(POST_QUERY, { slug });
+  const data = await sanityFetch({ query: POST_QUERY, params: { slug }, tags: ["post"] });
   const post = data as Post | null;
 
   if (!post) notFound();
 
-  const allPostsData = await client.fetch(POSTS_QUERY);
+  const allPostsData = await sanityFetch({ query: POSTS_QUERY, tags: ["post"] });
   const allPosts = allPostsData as PostSummary[];
   const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
 

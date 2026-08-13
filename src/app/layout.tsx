@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Modern Blog",
-    template: "%s | Modern Blog",
+    default: "Ram's Blog",
+    template: "%s | Ram's Blog",
   },
   description:
-    "A modern blog built with Next.js and Sanity — news, tips, and insights.",
+    "Writing about my journey in the world of kubernetes, servicemesh and distributed systems in general",
 };
 
 export default function RootLayout({

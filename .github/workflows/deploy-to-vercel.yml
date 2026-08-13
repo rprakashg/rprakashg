@@ -13,7 +13,7 @@ env:
   NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
   NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
   NEXT_PUBLIC_SANITY_API_VERSION: ${{ secrets.NEXT_PUBLIC_SANITY_API_VERSION }}
-  
+  VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
@@ -37,15 +37,15 @@ jobs:
         run: yarn global add vercel@latest
 
       - name: Pull Vercel environment
-        run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_TEAM_ID }}
 
       - name: Build
-        run: vercel build --token=${{ env.VERCEL_TOKEN }}
+        run: vercel build --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_TEAM_ID }}
 
       - name: Deploy preview to Vercel
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_TEAM_ID }})
           echo "url=$url" >> $GITHUB_OUTPUT
 
       - name: Print preview URL
@@ -63,12 +63,12 @@ jobs:
       - name: Find preview deployment URL with READY state from vercel
         id: preview
         run: | 
-          PREVIEW_URL=$(vercel ls learning --token=${{ env.VERCEL_TOKEN }} --environment=preview --format=json | jq -r '.deployments | map(select(.state == "READY")) | first | .url')
+          PREVIEW_URL=$(vercel ls rprakashg --token=${{ env.VERCEL_TOKEN }} --environment=preview --scope=${{ env.VERCEL_TEAM_ID }} --format=json | jq -r '.deployments | map(select(.state == "READY")) | first | .url')
           echo="url=${PREVIEW_URL}"
 
       - name: Promote preview to production
         if: steps.preview.outputs.url != ''
-        run: vercel promote ${{ steps.preview.outputs.url }} --token=${{ env.VERCEL_TOKEN }}
+        run: vercel promote ${{ steps.preview.outputs.url }} --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_TEAM_ID }}
 
       # Fallback: full build + production deploy when no preview deployment exists
       - name: Checkout
@@ -92,8 +92,8 @@ jobs:
 
       - name: Pull Vercel environment
         if: steps.preview.outputs.url == ''
-        run: vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_TEAM_ID }}
 
       - name: Deploy to production
         if: steps.preview.outputs.url == ''
-        run: vercel deploy --prod --token=${{ env.VERCEL_TOKEN }}
+        run: vercel deploy --prod --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_TEAM_ID }}
