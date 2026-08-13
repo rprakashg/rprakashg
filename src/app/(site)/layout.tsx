@@ -1,6 +1,6 @@
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/client";
 import { PROFILE_QUERY } from "@/sanity/lib/queries";
 import type { Profile } from "@/sanity/types";
 
@@ -9,7 +9,7 @@ export default async function SiteLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const profileData = await client.fetch(PROFILE_QUERY);
+  const profileData = await sanityFetch({ query: PROFILE_QUERY, tags: ["profile"] });
   const profile = profileData as Profile | null;
   const contact = profile?.contact;
 

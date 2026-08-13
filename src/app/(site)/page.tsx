@@ -1,11 +1,11 @@
 import { FeaturedPost } from "@/components/featured-post";
 import { PostCard } from "@/components/post-card";
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/client";
 import { POSTS_QUERY } from "@/sanity/lib/queries";
 import type { PostSummary } from "@/sanity/types";
 
 export default async function HomePage() {
-  const postsData = await client.fetch(POSTS_QUERY);
+  const postsData = await sanityFetch({ query: POSTS_QUERY, tags: ["post"] });
   const posts = postsData as PostSummary[];
 
   const [mostRecentPost, ...otherPosts] = posts;
